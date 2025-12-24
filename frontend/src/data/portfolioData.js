@@ -1,10 +1,11 @@
 export const portfolioData = {
   name: "Arhan S D",
   title: "AI/GenAI Engineer / FullStack ",
+  college: "Bits Goa '26 - ENI",
   email: "sdarhan2002a@gmail.com",
   linkedin: "https://www.linkedin.com/in/arhan-s-d-a01186347/",
   github: "https://github.com/arhansd1",
-  about: "Passionate AI/GenAI Engineer specializing in building intelligent systems and LLM applications. Experienced in developing production-ready ML pipelines and conversational AI solutions.",
+  about: "Passionate AI/GenAI Engineer specializing in building intelligent systems and LLM applications. Experienced in developing production-ready ML pipelines and conversational AI solutions. Well versed in Full Staack Web Devolopment / Design",
   
   experience: [
     {
@@ -25,9 +26,10 @@ export const portfolioData = {
   
   projects: [
     {
-      name: "AI Assistant Platform",
-      tech: "Python, LangChain, FastAPI, React",
-      description: "Built an enterprise AI assistant with RAG capabilities, serving 10k+ users"
+      name: "ClEAN CSV",
+      tech: "Python, Langraph, FastAPI, React JS, Tailwind ",
+      description: "CleanSV is a simple, AI-powered web tool that helps you clean CSV / Excel files the way you want — using plain English.",
+      github: "https://github.com/arhansd1/CleanSV-v1-"
     },
     {
       name: "Custom LLM Fine-tuning",
