@@ -1,4 +1,5 @@
-import { Github, Linkedin, Mail, ChevronDown, ArrowRight, Code, Cpu, Database, Server, CpuIcon, DatabaseIcon, Code2 } from 'lucide-react';
+import { Github, Linkedin, Mail, ChevronDown, ArrowRight , Code } from 'lucide-react';
+import { skillIcons } from '../../utils/iconConfigs';
 import { portfolioData } from '../../data/portfolioData';
 
 export default function Hero({ sectionRef }) {
@@ -8,12 +9,7 @@ export default function Hero({ sectionRef }) {
     { icon: <Mail size={20} />, url: `mailto:${portfolioData.email}` }
   ];
 
-  const skillIcons = {
-    'Languages': <Code2 className="w-5 h-5 text-blue-400" />,
-    'Frameworks': <Cpu className="w-5 h-5 text-purple-400" />,
-    'Databases': <Database className="w-5 h-5 text-green-400" />,
-    'Tools': <Server className="w-5 h-5 text-yellow-400" />
-  };
+  // Using skillIcons from iconConfigs
 
   return (
     <section ref={sectionRef} className="min-h-screen flex items-center px-12 py-12 md:py-20 relative overflow-hidden">

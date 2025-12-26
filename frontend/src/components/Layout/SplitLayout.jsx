@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Portfolio from '../Portfolio';
 import Chat from '../Chat';
+import AnimatedBackground from '../Background/AnimatedBackground';
 
 export default function SplitLayout() {
   const [sectionRefs] = useState({
@@ -15,7 +16,8 @@ export default function SplitLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-black text-gray-100 p-1 gap-1">
+    <div className="relative flex h-screen bg-black text-gray-100 p-1 gap-1">
+      <AnimatedBackground />
       <Portfolio sectionRefs={sectionRefs} />
       <Chat scrollToSection={scrollToSection} />
     </div>
