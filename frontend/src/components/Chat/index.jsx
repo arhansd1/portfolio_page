@@ -147,18 +147,31 @@ if (!isOpen) {
   }
 
   return (
-    <div className="fixed top-0 right-0 h-full w-1/3 flex flex-col bg-zinc-950 overflow-hidden border-l border-zinc-800" ref={chatContainerRef} style={{ zIndex: 50 }}>
-      <div className="bg-zinc-900 p-4 flex justify-between items-center border-b border-zinc-800">
-        <h3 className="font-semibold">Chat with me</h3>
+    <div 
+      className="fixed top-0 right-0 h-full w-1/3 flex flex-col bg-gradient-to-br from-gray-900 to-gray-800 overflow-hidden shadow-2xl" 
+      ref={chatContainerRef} 
+      style={{ zIndex: 50 }}
+    >
+      {/* Header */}
+      <div className="bg-gray-900/90 backdrop-blur-sm border-b border-gray-800 p-5 flex justify-between items-center">
+        <div className="flex items-center space-x-3">
+          <div className="w-2.5 h-2.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)] animate-pulse"></div>
+          <h3 className="font-medium text-gray-200 text-[15px] tracking-wide">Chat with me</h3>
+        </div>
         <button 
           onClick={() => setIsOpen(false)}
-          className="text-gray-400 hover:text-white"
+          className="text-white hover:bg-white/10 p-1.5 rounded-full transition-colors"
           aria-label="Close chat"
         >
-          ✕
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+
+      {/* Messages Container */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-gradient-to-b from-gray-900/70 to-gray-800/70">
         {messages.map((msg, i) => (
           <ChatMessage key={i} message={msg} />
         ))}
@@ -167,20 +180,21 @@ if (!isOpen) {
         
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-zinc-900 border border-gray-800 p-4">
-              <div className="flex gap-1">
-                <div className="w-2 h-2 bg-gray-600 rounded-full animate-pulse"></div>
-                <div className="w-2 h-2 bg-gray-600 rounded-full animate-pulse delay-75"></div>
-                <div className="w-2 h-2 bg-gray-600 rounded-full animate-pulse delay-150"></div>
+            <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 py-3 max-w-xs">
+              <div className="flex gap-2">
+                <div className="w-2.5 h-2.5 bg-blue-400 rounded-full animate-pulse"></div>
+                <div className="w-2.5 h-2.5 bg-purple-400 rounded-full animate-pulse delay-100"></div>
+                <div className="w-2.5 h-2.5 bg-pink-400 rounded-full animate-pulse delay-200"></div>
               </div>
             </div>
           </div>
         )}
         
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef} className="h-4" />
       </div>
 
-      <div className="border-t border-zinc-800 p-4">
+      {/* Input Area */}
+      <div className="border-t border-gray-700/50 bg-gray-900/50 backdrop-blur-sm p-4">
         <ChatInput 
           value={input}
           onChange={setInput}
