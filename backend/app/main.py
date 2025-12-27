@@ -1,5 +1,11 @@
+import sys
+from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+
+# Add the parent directory to the Python path
+sys.path.append(str(Path(__file__).parent.parent))
+
 from app.config import settings, Message, ChatRequest, ChatResponse
 from app.services.ai_services import AIService
 
