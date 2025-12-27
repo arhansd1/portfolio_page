@@ -9,7 +9,7 @@ export default function ChatInput({ value, onChange, onSend, loading }) {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && onSend()}
-          placeholder="Ask about my background..."
+          placeholder="Ask anything..."
           className="flex-1 bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 text-sm text-gray-100 placeholder-gray-500 transition-all duration-200 shadow-sm"
         />
         <button

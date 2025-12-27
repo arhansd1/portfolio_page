@@ -1,19 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
-import QuickOptions from './QuickOptions';
 import { sendChatMessage } from '../../services/api';
-import { portfolioData } from '../../data/portfolioData';
 import { MessageCircle } from 'lucide-react';
 
 export default function Chat({ scrollToSection }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hi! I can help you learn about my background. What would you like to know?' }
+    { role: 'assistant', content: 'Hello!!! I can help you know more about me , my experience or my Projects . What would you like to know?' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showOptions, setShowOptions] = useState(true);
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
 
@@ -28,33 +25,6 @@ export default function Chat({ scrollToSection }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleOptionClick = (option) => {
-    setShowOptions(false);
-    scrollToSection(option.section);
-    
-    let response = '';
-    if (option.section === 'experience') {
-      response = `I have ${portfolioData.experience.length} key roles:\n\n${portfolioData.experience.map(exp => 
-        `${exp.role} at ${exp.company} (${exp.period})\n${exp.description}`
-      ).join('\n\n')}`;
-    } else if (option.section === 'projects') {
-      response = `Here are my notable projects:\n\n${portfolioData.projects.map(proj => 
-        `• ${proj.name}\nTech: ${proj.tech}\n${proj.description}`
-      ).join('\n\n')}`;
-    } else if (option.section === 'skills') {
-      response = `My technical skills:\n\n${Object.entries(portfolioData.skills).map(([cat, skills]) => 
-        `${cat}: ${skills.join(', ')}`
-      ).join('\n')}`;
-    } else {
-      response = `You can reach me at:\n📧 ${portfolioData.email}\n💼 ${portfolioData.linkedin}\n💻 ${portfolioData.github}`;
-    }
-    
-    setMessages(prev => [...prev, 
-      { role: 'user', content: `Tell me about ${option.label.toLowerCase()}` },
-      { role: 'assistant', content: response }
-    ]);
-  };
-
   const handleSend = async () => {
     if (!input.trim()) return;
     
@@ -62,8 +32,6 @@ export default function Chat({ scrollToSection }) {
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setLoading(true);
-    setShowOptions(false);
-
     try {
       const data = await sendChatMessage([...messages, { role: 'user', content: userMessage }]);
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
@@ -75,7 +43,6 @@ export default function Chat({ scrollToSection }) {
     }
     
     setLoading(false);
-    setTimeout(() => setShowOptions(true), 1000);
   };
 
   useEffect(() => {
@@ -174,10 +141,7 @@ if (!isOpen) {
       <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-gradient-to-b from-gray-900/70 to-gray-800/70">
         {messages.map((msg, i) => (
           <ChatMessage key={i} message={msg} />
-        ))}
-        
-        <QuickOptions show={showOptions && messages.length > 0} onOptionClick={handleOptionClick} />
-        
+        ))}        
         {loading && (
           <div className="flex justify-start">
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 py-3 max-w-xs">
