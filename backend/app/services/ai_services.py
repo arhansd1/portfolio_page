@@ -32,15 +32,12 @@ class AIService:
             chat_messages = [
                 SystemMessage(content=SYSTEM_PROMPT)
             ]
-
             for msg in state["messages"]:
                 if msg["role"] == "user":
                     chat_messages.append(HumanMessage(content=msg["content"]))
                 elif msg["role"] == "assistant":
                     chat_messages.append(AIMessage(content=msg["content"]))
-
             response = self.llm.invoke(chat_messages)
-
             return {
                 "messages": state["messages"],
                 "response": response.content

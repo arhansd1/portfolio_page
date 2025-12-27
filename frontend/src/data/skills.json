@@ -1,0 +1,8 @@
+{
+    "skills": {
+        "AI/ML": ["LLMs", "RAG", "Fine-tuning", "Prompt Engineering", "LangChain"],
+        "Languages": ["Python", "JavaScript", "SQL"],
+        "Frameworks": ["PyTorch", "TensorFlow", "FastAPI", "React"],
+        "Tools": ["Docker", "AWS", "Git", "Vector DBs"]
+  }
+}
