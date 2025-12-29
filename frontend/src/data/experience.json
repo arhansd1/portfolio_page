@@ -1,6 +1,7 @@
 {
   "experience": [
     {
+      "id":1,
       "type": "Internship",
       "role": "AI Intern",
       "company": "10xScale.ai",
@@ -19,6 +20,7 @@
       }
     },
     {
+      "id":2,
       "type": "Internship",
       "role": "FullStack developer",
       "company": "MDDTI Southern Railways, Bangalore",

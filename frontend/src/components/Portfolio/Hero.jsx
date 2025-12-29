@@ -1,6 +1,6 @@
 import { Github, Linkedin, Mail, ChevronDown, ArrowRight , Code } from 'lucide-react';
 import { skillIcons } from '../../utils/iconConfigs';
-import { portfolioData } from '../../data/portfolioData';
+import portfolioData from '../../data/portfolioData';
 
 export default function Hero({ sectionRef }) {
   const socialLinks = [

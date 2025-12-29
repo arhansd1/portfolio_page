@@ -1,4 +1,4 @@
-import { portfolioData } from '../../data/portfolioData';
+import portfolioData  from '../../data/portfolioData';
 import { Calendar , Briefcase, Code} from 'lucide-react';
 import { experienceIcons, techIcons } from '../../utils/iconConfigs';
 

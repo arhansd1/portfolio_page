@@ -1,6 +1,7 @@
 {
     "projects": [
       {
+      "id":1,
       "name": "Autofill Extension",
       "period": "07/2025 - 09/2025",
       "type":"Internship project" ,
@@ -13,9 +14,11 @@
         "Automation Tools": "used for DOM analysis and form interaction"
       },
       "github":null,
-      "website_link": "https://careerpilot.10xscale.ai"
+      "website_link": "https://careerpilot.10xscale.ai",
+       "images": ["./images/extenstion/1.png", "./images/extension/2.png"]    
     },
     {
+      "id":2,
       "name": "CSV Cleaner (CleanSV)",
       "period": "04/2025 - 04/2025",
       "type": "Personal Project",
@@ -30,9 +33,12 @@
         "Unsloth": "used to fine-tune LLMs for reliable code execution"
       },
       "github": "https://github.com/arhansd1/CleanSV-v1-",
-      "website_link": null
+      "website_link": null,
+      "images": ["./images/cleancsv/1.png"]    
+
     },
     {
+      "id":3,
       "name": "Computer-Based Testing Platform",
       "period": "05/2024 - 06/2024",
       "type": "Internship Project",
@@ -46,7 +52,8 @@
         "SQL": "used to manage question databases and test results"
       },
       "github": "https://github.com/arhansd1/computer-based-testing-website",
-      "website_link": null
+      "website_link": null,
+      "images": ["./images/cbt/1.png", "./images/cbt/2.png"]    
     }
 ]
 }

@@ -1,4 +1,4 @@
-import { portfolioData } from '../../data/portfolioData';
+import portfolioData from '../../data/portfolioData';
 import { Github, ExternalLink, Code } from 'lucide-react';
 
 export default function Projects({ sectionRef }) {
