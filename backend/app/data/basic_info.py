@@ -11,8 +11,8 @@ def load_data(relative_path):
 
 # Load all data into a single dictionary
 basic_info = {
-    "personal_info": load_data('../../frontend/src/data/personal_info.json'),
-    "experience": load_data('../../frontend/src/data/experience.json'),
-    "projects": load_data('../../frontend/src/data/projects.json'),
-    "skills": load_data('../../frontend/src/data/skills.json')
+    "personal_info": load_data('../../../frontend/src/data/personal_info.json'),
+    "experience": load_data('../../../frontend/src/data/experience.json'),
+    "projects": load_data('../../../frontend/src/data/projects.json'),
+    "skills": load_data('../../../frontend/src/data/skills.json')
 }

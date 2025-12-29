@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
+import SelectionUI from './SelectionUI';
 import { sendChatMessage } from '../../services/api';
 import { MessageCircle } from 'lucide-react';
 
@@ -11,6 +12,9 @@ export default function Chat({ scrollToSection }) {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [conversationState, setConversationState] = useState(null);
+  const [needs_interrupt, setNeedsInterrupt] = useState(false); 
+  const [selectionOptions, setSelectionOptions] = useState([]);  
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
 
@@ -32,9 +36,53 @@ export default function Chat({ scrollToSection }) {
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setLoading(true);
+    
     try {
-      const data = await sendChatMessage([...messages, { role: 'user', content: userMessage }]);
+      const data = await sendChatMessage(
+        [...messages, { role: 'user', content: userMessage }],
+        conversationState  // Pass state
+      );
+      
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+      setConversationState(data.state);  //  Update state
+      
+      // Check if HITL triggered
+      if (data.needs_interrupt) {
+        setNeedsInterrupt(true);
+        setSelectionOptions(data.selection_options);
+      }
+    } catch (error) {
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'Sorry, I encountered an error. Please try again.' 
+      }]);
+    }
+    
+    setLoading(false);
+  };
+
+  // Handle selection from UI
+  const handleSelection = async (selectedOption) => {
+    // Add selection to messages as JSON
+    const selectionMessage = JSON.stringify(selectedOption);
+    setMessages(prev => [...prev, { 
+      role: 'user', 
+      content: `Selected: ${selectedOption.display}` 
+    }]);
+    
+    // Clear selection UI
+    setNeedsInterrupt(false);
+    setSelectionOptions([]);
+    setLoading(true);
+    
+    try {
+      const data = await sendChatMessage(
+        [...messages, { role: 'user', content: selectionMessage }],
+        conversationState
+      );
+      
+      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+      setConversationState(data.state);
     } catch (error) {
       setMessages(prev => [...prev, { 
         role: 'assistant', 
@@ -49,7 +97,7 @@ export default function Chat({ scrollToSection }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-if (!isOpen) {
+  if (!isOpen) {
     return (
       <>
         {/* Info Panel - Hidden when chat is open */}
@@ -141,7 +189,16 @@ if (!isOpen) {
       <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-gradient-to-b from-gray-900/70 to-gray-800/70">
         {messages.map((msg, i) => (
           <ChatMessage key={i} message={msg} />
-        ))}        
+        ))}
+        
+        {/*Selection UI when needs_interrupt */}
+        {needs_interrupt && !loading && (
+          <SelectionUI 
+            options={selectionOptions}
+            onSelect={handleSelection}
+          />
+        )}
+        
         {loading && (
           <div className="flex justify-start">
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 py-3 max-w-xs">
@@ -163,7 +220,7 @@ if (!isOpen) {
           value={input}
           onChange={setInput}
           onSend={handleSend}
-          loading={loading}
+          loading={loading || needs_interrupt}
         />
       </div>
     </div>

@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from typing import List, Literal, Optional , Any
+from typing import List, Literal, Optional, Dict, Any
 from pydantic import BaseModel
 
 # Load environment variables
@@ -17,7 +17,6 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     response: str
     state: Dict[str, Any]
-    awaiting_selection: bool = False
     selection_options: Optional[List[Dict[str, Any]]] = None
 
 class Settings:

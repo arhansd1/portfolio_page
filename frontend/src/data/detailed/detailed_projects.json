@@ -1,0 +1,59 @@
+{
+    "projects": [
+      {
+      "id":1,
+      "name": "Autofill Extension",
+      "period": "07/2025 - 09/2025",
+      "type":"Internship project" ,
+      "description": "An AI-powered Chrome extension that automatically fills online forms by detecting input fields and intelligently matching them with user data. Built end-to-end, including extension UI, backend services, database design, and AI-driven field-matching logic, enabling one-click, accurate form completion across multiple websites.",
+      "tools_used": {
+        "TypeScript": "used for building the Chrome extension and core logic",
+        "Chrome Extension APIs": "used to interact with browser tabs and form elements",
+        "LangGraph": "used to build agent-based field detection and matching workflows",
+        "PostgreSQL": "used to store and manage user data securely",
+        "Automation Tools": "used for DOM analysis and form interaction"
+      },
+      "github":null,
+      "website_link": "https://careerpilot.10xscale.ai",
+       "images": ["./images/extenstion/1.png", "./images/extension/2.png"]    
+    },
+    {
+      "id":2,
+      "name": "CSV Cleaner (CleanSV)",
+      "period": "04/2025 - 04/2025",
+      "type": "Personal Project",
+      "description": "An AI-powered web application that simplifies CSV and Excel data cleaning using plain English commands. Users can upload datasets, describe desired changes, and receive auto-generated Python code with a live table preview. Supports accept/reject per operation, full undo/redo, and one-click download while handling duplicates, formatting issues, and missing values in a clean, editor-style interface.",
+      "tools_used": {
+        "Python": "used for data processing and backend logic",
+        "FastAPI": "used to build backend APIs",
+        "LangGraph": "used to orchestrate AI-driven data transformation workflows",
+        "React.js": "used to build the frontend interface",
+        "Tailwind CSS": "used for responsive UI styling",
+        "OpenAI Models": "used for natural language understanding and code generation",
+        "Unsloth": "used to fine-tune LLMs for reliable code execution"
+      },
+      "github": "https://github.com/arhansd1/CleanSV-v1-",
+      "website_link": null,
+      "images": ["./images/cleancsv/1.png"]    
+
+    },
+    {
+      "id":3,
+      "name": "Computer-Based Testing Platform",
+      "period": "05/2024 - 06/2024",
+      "type": "Internship Project",
+      "description": "Developed a secure and user-friendly computer-based testing platform with separate admin and student portals. The system supports question bank management, test creation, result evaluation, and implements measures to ensure a cheat-free testing environment while providing smooth and safe access for students.",
+      "tools_used": {
+        "HTML": "used for structuring the web application",
+        "CSS": "used for styling and responsive layout",
+        "JavaScript": "used for frontend interactivity and validation",
+        "Node.js": "used for backend logic and server-side processing",
+        "Express": "used to build REST APIs",
+        "SQL": "used to manage question databases and test results"
+      },
+      "github": "https://github.com/arhansd1/computer-based-testing-website",
+      "website_link": null,
+      "images": ["./images/cbt/1.png", "./images/cbt/2.png"]    
+    }
+]
+}

@@ -35,10 +35,17 @@ async def root():
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     try:
-        response = await ai_service.chat(
-            [msg.dict() for msg in request.messages]
+        result = await ai_service.chat(
+            [msg.dict() for msg in request.messages],
+            state_vars=request.state
         )
-        return ChatResponse(response=response)
+        
+        return ChatResponse(
+            response=result["response"],
+            state=result["state"],
+            needs_interrupt=result.get("needs_interrupt", False),
+            selection_options=result.get("selection_options")
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

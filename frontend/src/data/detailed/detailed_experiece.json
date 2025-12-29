@@ -1,0 +1,39 @@
+{
+  "experience": [
+    {
+      "id":1,
+      "type": "Internship",
+      "role": "AI Intern",
+      "company": "10xScale.ai",
+      "period": "06/2025 - 12/2025",
+      "description": "Worked on building end-to-end AI products including resume-enhancement systems, multi-node chatbots, and automated job-apply agents. Designed vector-database pipelines for retrieval-augmented generation (RAG), fine-tuned large language models, pre-trained small language models, and developed multi-agent workflows for scalable AI systems.",
+      "tech_used": {
+        "Python": "used for core AI development and automation",
+        "LLMs": "used for building intelligent conversational and reasoning systems",
+        "SLMs": "used for pre-training and lightweight AI deployments",
+        "LangGraph": "used to design multi-agent workflows",
+        "AgentFlow": "used for orchestrating agent-based systems",
+        "MCP": "used for agent communication and control",
+        "Playwright": "used for browser automation in job-apply agents",
+        "Qdrant": "used as a vector database for RAG pipelines",
+        "mem0": "used for long-term memory management in agents"
+      }
+    },
+    {
+      "id":2,
+      "type": "Internship",
+      "role": "FullStack developer",
+      "company": "MDDTI Southern Railways, Bangalore",
+      "period": "06/2024 - 08/2024",
+      "description": "Collaborated with a team to design and develop a fully functional company website to enhance online presence and user engagement. Developed a computer-based testing (CBT) platform enabling efficient test creation, management, and administration. Implemented features for test creation, test management, and result analysis.",
+      "tech_used": {
+        "HTML": "used for structuring web pages",
+        "CSS": "used for styling and layout",
+        "JavaScript": "used for client-side logic and interactivity",
+        "Node.js": "used for backend development",
+        "Express": "used to build REST APIs",
+        "SQL": "used for database management and queries"
+      }
+    }
+  ]
+}
