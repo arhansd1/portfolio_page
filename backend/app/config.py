@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional , Any
 from pydantic import BaseModel
 
 # Load environment variables
@@ -12,9 +12,13 @@ class Message(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: List[Message]
+    state: Optional[Dict[str, Any]] = None
 
 class ChatResponse(BaseModel):
     response: str
+    state: Dict[str, Any]
+    awaiting_selection: bool = False
+    selection_options: Optional[List[Dict[str, Any]]] = None
 
 class Settings:
     # API Keys
