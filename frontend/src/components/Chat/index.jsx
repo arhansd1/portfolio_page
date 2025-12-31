@@ -4,6 +4,7 @@ import ChatInput from './ChatInput';
 import SelectionUI from './SelectionUI';
 import { sendChatMessage } from '../../services/api';
 import { MessageCircle } from 'lucide-react';
+import { ALL_EXPERIENCES, ALL_PROJECTS } from '../../data/portfolioItems';
 
 export default function Chat({ scrollToSection }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +15,6 @@ export default function Chat({ scrollToSection }) {
   const [loading, setLoading] = useState(false);
   const [conversationState, setConversationState] = useState(null);
   const [needs_interrupt, setNeedsInterrupt] = useState(false); 
-  const [selectionOptions, setSelectionOptions] = useState([]);  
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
 
@@ -29,6 +29,20 @@ export default function Chat({ scrollToSection }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Helper function to get selection options based on current topic
+  const getSelectionOptions = () => {
+    const topic = conversationState?.current_topic;
+    
+    if (topic === 'experience') {
+      return ALL_EXPERIENCES;
+    } else if (topic === 'projects') {
+      return ALL_PROJECTS;
+    } else {
+      // If topic is null, show both
+      return [...ALL_EXPERIENCES, ...ALL_PROJECTS];
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim()) return;
     
@@ -40,22 +54,20 @@ export default function Chat({ scrollToSection }) {
     try {
       const data = await sendChatMessage(
         [...messages, { role: 'user', content: userMessage }],
-        conversationState  // Pass state
+        conversationState
       );
       
-      console.log('Response data:', data); // Debug log
+      console.log('Response data:', data);
       
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
-      setConversationState(data.state);  //  Update state
+      setConversationState(data.state);
       
       // Check if HITL triggered
       if (data.needs_interrupt) {
-        console.log('Interrupt triggered with options:', data.selection_options); // Debug log
+        console.log('Interrupt triggered');
         setNeedsInterrupt(true);
-        setSelectionOptions(data.selection_options || []);
       } else {
         setNeedsInterrupt(false);
-        setSelectionOptions([]);
       }
     } catch (error) {
       console.error('Chat error:', error);
@@ -70,7 +82,7 @@ export default function Chat({ scrollToSection }) {
 
   // Handle selection from UI
   const handleSelection = async (selectedOption) => {
-    console.log('Selection made:', selectedOption); // Debug log
+    console.log('Selection made:', selectedOption);
     
     // Add selection to messages as JSON
     const selectionMessage = JSON.stringify(selectedOption);
@@ -81,7 +93,6 @@ export default function Chat({ scrollToSection }) {
     
     // Clear selection UI
     setNeedsInterrupt(false);
-    setSelectionOptions([]);
     setLoading(true);
     
     try {
@@ -90,7 +101,7 @@ export default function Chat({ scrollToSection }) {
         conversationState
       );
       
-      console.log('Response after selection:', data); // Debug log
+      console.log('Response after selection:', data);
       
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
       setConversationState(data.state);
@@ -98,7 +109,6 @@ export default function Chat({ scrollToSection }) {
       // Check if another interrupt is needed (shouldn't happen normally)
       if (data.needs_interrupt) {
         setNeedsInterrupt(true);
-        setSelectionOptions(data.selection_options || []);
       }
     } catch (error) {
       console.error('Selection error:', error);
@@ -210,9 +220,9 @@ export default function Chat({ scrollToSection }) {
         ))}
         
         {/* Selection UI when needs_interrupt */}
-        {needs_interrupt && !loading && selectionOptions.length > 0 && (
+        {needs_interrupt && !loading && (
           <SelectionUI 
-            options={selectionOptions}
+            options={getSelectionOptions()}
             onSelect={handleSelection}
           />
         )}
