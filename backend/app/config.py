@@ -17,7 +17,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     response: str
     state: Dict[str, Any]
-    selection_options: Optional[List[Dict[str, Any]]] = None
+    needs_interrupt: bool = False
 
 class Settings:
     # API Keys

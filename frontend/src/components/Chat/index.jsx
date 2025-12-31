@@ -43,15 +43,22 @@ export default function Chat({ scrollToSection }) {
         conversationState  // Pass state
       );
       
+      console.log('Response data:', data); // Debug log
+      
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
       setConversationState(data.state);  //  Update state
       
       // Check if HITL triggered
       if (data.needs_interrupt) {
+        console.log('Interrupt triggered with options:', data.selection_options); // Debug log
         setNeedsInterrupt(true);
-        setSelectionOptions(data.selection_options);
+        setSelectionOptions(data.selection_options || []);
+      } else {
+        setNeedsInterrupt(false);
+        setSelectionOptions([]);
       }
     } catch (error) {
+      console.error('Chat error:', error);
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: 'Sorry, I encountered an error. Please try again.' 
@@ -63,6 +70,8 @@ export default function Chat({ scrollToSection }) {
 
   // Handle selection from UI
   const handleSelection = async (selectedOption) => {
+    console.log('Selection made:', selectedOption); // Debug log
+    
     // Add selection to messages as JSON
     const selectionMessage = JSON.stringify(selectedOption);
     setMessages(prev => [...prev, { 
@@ -81,9 +90,18 @@ export default function Chat({ scrollToSection }) {
         conversationState
       );
       
+      console.log('Response after selection:', data); // Debug log
+      
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
       setConversationState(data.state);
+      
+      // Check if another interrupt is needed (shouldn't happen normally)
+      if (data.needs_interrupt) {
+        setNeedsInterrupt(true);
+        setSelectionOptions(data.selection_options || []);
+      }
     } catch (error) {
+      console.error('Selection error:', error);
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: 'Sorry, I encountered an error. Please try again.' 
@@ -191,8 +209,8 @@ export default function Chat({ scrollToSection }) {
           <ChatMessage key={i} message={msg} />
         ))}
         
-        {/*Selection UI when needs_interrupt */}
-        {needs_interrupt && !loading && (
+        {/* Selection UI when needs_interrupt */}
+        {needs_interrupt && !loading && selectionOptions.length > 0 && (
           <SelectionUI 
             options={selectionOptions}
             onSelect={handleSelection}

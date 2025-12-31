@@ -10,6 +10,16 @@ from ..data.detailed_info import detailed_info
 
 load_dotenv()
 
+class State(TypedDict):
+    messages: list
+    response: str
+    # Persistent tracking variables
+    current_topic: Optional[str]
+    selected_item_id: Optional[int]
+    imp_points: Optional[List[str]]
+    mode: str
+    needs_interrupt: bool
+
 INITIAL_ROUTER_PROMPT = f'''
 You are an intelligent routing agent that analyzes conversations and determines the flow.
 
@@ -80,7 +90,7 @@ User: "Tell me about your projects"
   "selected_item_id": null,
   "imp_points": null,
   "mode": "chat",
-  "needs_interrupt": true
+  "needs_interrupt": false
 }}
 
 User: "I want a deep dive into your projects"
@@ -126,44 +136,98 @@ User: "Tell me more technical details about CleanSV"
 '''
 
 
-CHAT_PROMPT = f'''
-**STRICT RULES**
-- You only answer using provided data from (basic_info) as your main source of information regarding profile enquiries.
--You do NOT fabricate information.
-- if you are talking about PROJECTS or EXPERIENCE always end with do you want to deep dive on any of the topics.
+def get_chat_prompt(state: State) -> str:
+    """Generate chat prompt with context from state variables"""
+    
+    context_parts = [
+        "**STRICT RULES**",
+        "- You only answer using provided data from (basic_info) as your main source of information regarding profile enquiries.",
+        "- You do NOT fabricate information.",
+        "- If you are talking about PROJECTS or EXPERIENCE always end with 'Would you like to deep dive into any of these topics?'",
+        "",
+        "**OBJECTIVE**",
+        "You are a helpful AI assistant for a portfolio website who provides accurate information based on the provided profile data.",
+        "If they ask any technical information not relevant to the profile person but on the technical side, you can answer through your knowledge base, with citations of (basic_info) if any.",
+        "Explain in a concise and clear manner.",
+        "",
+        "**AVAILABLE DATA:**",
+        json.dumps(basic_info, indent=2),
+        ""
+    ]
+    
+    # Add conversation context if available
+    if state.get("current_topic"):
+        context_parts.append(f"**CURRENT TOPIC:** {state['current_topic']}")
+    
+    if state.get("selected_item_id"):
+        context_parts.append(f"**SELECTED ITEM ID:** {state['selected_item_id']}")
+    
+    if state.get("imp_points"):
+        context_parts.append(f"**IMPORTANT POINTS DISCUSSED:** {', '.join(state['imp_points'])}")
+    
+    return "\n".join(context_parts)
 
-**OBJECTIVE**
-You are a helpful AI assistant for a portfolio website who provides accurate information based on the provided profile data.
-If they ask any technical information not relevant to profile person but the technical side , you can answer through youre knowledge base , with sightings of (basic_info) if any.
-explain in concise and clear manner .
 
-**AVAILABLE DATA:**
-{basic_info}
-
-'''
-
-DEEP_DIVE_PROMPT = """
-You are an expert technical interviewer. When providing deep dive responses, focus on:
-- Technical implementation details
-- Architecture decisions
-- Problem-solving approaches
-- Code patterns and best practices
-- Performance considerations
-- Trade-offs made
-
-Keep responses detailed but concise, suitable for technical discussion.
-"""
-
-class State(TypedDict):
-    messages: list
-    response: str
-    # Persistent tracking variables
-    current_topic: Optional[str]
-    selected_item_id: Optional[int]
-    imp_points: Optional[List[str]]
-    mode: str
-    selection_options: Optional[List[Dict[str, Any]]]
-    needs_interrupt: bool
+def get_deep_dive_prompt(state: State) -> str:
+    """Generate deep dive prompt with specific item data if available"""
+    
+    # Base prompt
+    context_parts = [
+        "**OBJECTIVE**",
+        "You are an expert technical interviewer providing in-depth technical information about projects and experiences.",
+        "Focus on:",
+        "- Technical implementation details and architecture decisions",
+        "- Problem-solving approaches and challenges faced",
+        "- Code patterns, best practices, and design choices",
+        "- Performance considerations and trade-offs made",
+        "- Tools and technologies used and why they were chosen",
+        "",
+        "Keep responses detailed but concise, suitable for technical discussion.",
+        ""
+    ]
+    
+    # Get specific data based on selected_item_id
+    selected_id = state.get("selected_item_id")
+    current_topic = state.get("current_topic")
+    
+    if selected_id and current_topic:
+        context_parts.append("**DETAILED DATA FOR THIS ITEM:**")
+        
+        if current_topic == "projects":
+            # Find specific project
+            project = next(
+                (p for p in detailed_info["det_projects"]["projects"] if p["id"] == selected_id),
+                None
+            )
+            if project:
+                context_parts.append(json.dumps(project, indent=2))
+            else:
+                # Fallback to all projects if not found
+                context_parts.append(json.dumps(detailed_info["det_projects"], indent=2))
+        
+        elif current_topic == "experience":
+            # Find specific experience
+            experience = next(
+                (e for e in detailed_info["det_experience"]["experience"] if e["id"] == selected_id),
+                None
+            )
+            if experience:
+                context_parts.append(json.dumps(experience, indent=2))
+            else:
+                # Fallback to all experiences if not found
+                context_parts.append(json.dumps(detailed_info["det_experience"], indent=2))
+    else:
+        # No specific item selected, provide all detailed info
+        context_parts.append("**AVAILABLE DETAILED DATA:**")
+        context_parts.append(json.dumps(detailed_info, indent=2))
+    
+    context_parts.append("")
+    
+    # Add conversation context
+    if state.get("imp_points"):
+        context_parts.append(f"**KEY POINTS TO ADDRESS:** {', '.join(state['imp_points'])}")
+    
+    return "\n".join(context_parts)
 
 class AIService:
     def __init__(self):
@@ -203,14 +267,16 @@ class AIService:
                     elif selected_type == "experience":
                         current_topic = "experience"  
 
+                    # IMPORTANT: Preserve the mode from previous state
+                    # This ensures we continue with chat/deep_dive as originally intended
                     return {
                         "messages": state["messages"],
                         "response": "",
                         "current_topic": current_topic,
                         "selected_item_id": selection.get("id"),
                         "imp_points": state.get("imp_points"),
-                        "mode": state.get("mode", "chat"),
-                        "needs_interrupt": False,
+                        "mode": state.get("mode", "chat"),  # Uses previous mode from state
+                        "needs_interrupt": False,  # Clear interrupt flag
                         "selection_options": None
                     }
                 except json.JSONDecodeError:
@@ -249,7 +315,6 @@ class AIService:
                     "imp_points": routing_decision.get("imp_points"),
                     "mode": routing_decision.get("mode", "chat"),
                     "needs_interrupt": routing_decision.get("needs_interrupt", False),
-                    "selection_options": None
                 }
                 
             except json.JSONDecodeError as e:
@@ -265,90 +330,97 @@ class AIService:
                     "imp_points": state.get("imp_points"),
                     "mode": "chat",
                     "needs_interrupt": False,
-                    "selection_options": None
                 }
 
         def selection_node(state: State) -> State:
             """
-            HITL node - generates selection options, no LLM call.
-            Returns options for frontend to display.
+            HITL node - just signals frontend to show selection UI.
+            Frontend will generate options based on current_topic.
             """
-            options = []
-            current_topic = state.get("current_topic")
-            
-            # Generate options based on topic
-            if current_topic == "experience" or current_topic is None:
-                for exp in basic_info["experience"]["experience"]:
-                    options.append({
-                        "type": "experience",
-                        "id": exp["id"],
-                        "name": exp["role"],
-                        "company": exp["company"],
-                        "period": exp["period"],
-                        "display": f"{exp['company']} - {exp['role']}"
-                    })
-            
-            if current_topic == "projects" or current_topic is None:
-                for proj in basic_info["projects"]["projects"]:
-                    options.append({
-                        "type": "project",
-                        "id": proj["id"],
-                        "name": proj["name"],
-                        "period": proj["period"],
-                        "display": proj["name"]
-                    })
-            
             return {
                 **state,
                 "response": "Please select what you'd like to explore:",
-                "needs_interrupt": True,  # Keep true for frontend to show selection UI
-                "selection_options": options
+                "needs_interrupt": True
+                # REMOVED: All selection_options generation logic
             }
 
         def chat_node(state: State) -> State:
             """
-            Placeholder for chat node - handles normal conversation
+            Handles normal conversation using basic_info data.
+            Provides conversational responses about projects, experience, and skills.
             """
+            # Build conversation history
+            all_messages: list[BaseMessage] = []
+            for msg in state["messages"]:
+                if msg["role"] == "user":
+                    all_messages.append(HumanMessage(content=msg["content"]))
+                elif msg["role"] == "assistant":
+                    all_messages.append(AIMessage(content=msg["content"]))
+            
+            # Generate prompt with context
+            system_prompt = get_chat_prompt(state)
+            
+            # Call LLM
+            llm_input = [SystemMessage(content=system_prompt)] + all_messages[-10:]
+            response = self.llm.invoke(llm_input)
+            
             return {
-                **state, 
-                "response": "Chat node placeholder - will implement with basic_info",
+                **state,
+                "response": response.content,
                 "needs_interrupt": False
             }
         
         def deep_dive_node(state: State) -> State:
             """
-            Placeholder for deep dive node - handles detailed technical discussions
+            Handles detailed technical discussions using detailed_info data.
+            Provides in-depth technical responses with specific item data if available.
             """
+            # Build conversation history
+            all_messages: list[BaseMessage] = []
+            for msg in state["messages"]:
+                if msg["role"] == "user":
+                    all_messages.append(HumanMessage(content=msg["content"]))
+                elif msg["role"] == "assistant":
+                    all_messages.append(AIMessage(content=msg["content"]))
+            
+            # Generate prompt with context and specific item data
+            system_prompt = get_deep_dive_prompt(state)
+            
+            # Call LLM
+            llm_input = [SystemMessage(content=system_prompt)] + all_messages[-10:]
+            response = self.llm.invoke(llm_input)
+            
             return {
-                **state, 
-                "response": "Deep dive node placeholder - will implement with detailed_info",
+                **state,
+                "response": response.content,
                 "needs_interrupt": False
             }
 
         # Routing functions
         def route_after_initial(state: State) -> str:
             """
-            Routes based on initial_router_node output
+            Routes based on initial_router_node output.
+            
+            Flow logic:
+            1. If needs_interrupt=True → Show selection UI (go to selection node)
+            2. If needs_interrupt=False → Process normally (go to chat/deep_dive)
+            
+            Note: After selection node shows options and returns END, the user's 
+            selection comes back as a NEW message which triggers initial_router again.
+            At that point, needs_interrupt will be False and we'll route to chat/deep_dive.
             """
             needs_interrupt = state.get("needs_interrupt", False)
             mode = state.get("mode", "chat")
             
-            # If needs interrupt, go to selection first
+            # HITL needed - show selection UI and pause
             if needs_interrupt:
                 return "selection"
-            # Otherwise route based on mode
+            
+            # No HITL needed - process the message
+            if mode == "deep_dive":
+                return "deep_dive"
             else:
-                if mode == "deep_dive":
-                    return "deep_dive"
-                else:
-                    return "chat"
-
-        def route_after_selection(state: State) -> str:
-            """
-            Routes after selection node shows options.
-            This essentially ends the flow - next message will be user's selection.
-            """
-            return END
+                return "chat"
 
         # Build graph
         graph = StateGraph(State)
@@ -359,29 +431,26 @@ class AIService:
         graph.add_node("chat", chat_node)
         graph.add_node("deep_dive", deep_dive_node)
         
-        # Set entry point
+        # Set entry point - ALL messages start here
         graph.set_entry_point("initial_router")
         
-        # Conditional routing after initial_router
+        # Routing after initial_router
+        # This determines which node to go to based on the routing decision
         graph.add_conditional_edges(
             "initial_router",
             route_after_initial,
             {
-                "chat": "chat",
-                "deep_dive": "deep_dive",
+                "selection": "selection",    # needs_interrupt=True
+                "chat": "chat",              # needs_interrupt=False, mode="chat"
+                "deep_dive": "deep_dive"    # needs_interrupt=False, mode="deep_dive"
             }
         )
         
-        # Selection node ends (waits for user to pick)
-        graph.add_conditional_edges(
-            "selection",
-            route_after_selection,
-            {
-                END: END
-            }
-        )
+        # Selection node always ends - waits for user to pick from UI
+        # The user's selection comes back as a NEW message which restarts the graph
+        graph.add_edge("selection", END)
         
-        # Chat and deep_dive end
+        # Chat and deep_dive nodes end after generating response
         graph.add_edge("chat", END)
         graph.add_edge("deep_dive", END)
         
@@ -399,7 +468,6 @@ class AIService:
             "imp_points": state_vars.get("imp_points") if state_vars else None,
             "mode": state_vars.get("mode", "chat") if state_vars else "chat",
             "needs_interrupt": state_vars.get("needs_interrupt", False) if state_vars else False,
-            "selection_options": state_vars.get("selection_options") if state_vars else None
         }
         
         result = await self.graph.ainvoke(initial_state)
@@ -412,8 +480,6 @@ class AIService:
                 "imp_points": result.get("imp_points"),
                 "mode": result.get("mode", "chat"),
                 "needs_interrupt": result.get("needs_interrupt", False),
-                "selection_options": result.get("selection_options")
             },
             "needs_interrupt": result.get("needs_interrupt", False),
-            "selection_options": result.get("selection_options")
         }
